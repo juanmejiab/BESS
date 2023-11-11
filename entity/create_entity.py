@@ -13,6 +13,26 @@ def data_preparation(info: pd.Series):
     return var_name, var
 
 
+def load_variables(data: pd.DataFrame, entities: list) -> None:
+    for index, row in data.iterrows():
+        for entity in entities:
+            if row.slave == 1 and isinstance(entity, BessBiblBatteryMonitor):
+                name, var_info = data_preparation(row)
+                entity.set_variables_info(name, var_info)
+
+            elif row.slave == 12 and isinstance(entity, BessBiblInverter1Phase1):
+                name, var_info = data_preparation(row)
+                entity.set_variables_info(name, var_info)
+
+            elif row.slave == 10 and isinstance(entity, BessBiblInverter2Phase2):
+                name, var_info = data_preparation(row)
+                entity.set_variables_info(name, var_info)
+
+            elif row.slave == 13 and isinstance(entity, BessBiblInverter3Phase3):
+                name, var_info = data_preparation(row)
+                entity.set_variables_info(name, var_info)
+
+
 def create_entities(data: pd.DataFrame):
     url = 'http://localhost:1026/v2/entities'
 
@@ -26,22 +46,7 @@ def create_entities(data: pd.DataFrame):
     inverter2 = BessBiblInverter2Phase2()
     inverter3 = BessBiblInverter3Phase3()
 
-    for index, row in data.iterrows():
-        if row.slave == 1:
-            name, var_info = data_preparation(row)
-            monitor.set_variables_info(name, var_info)
-
-        elif row.slave == 12:
-            name, var_info = data_preparation(row)
-            inverter1.set_variables_info(name, var_info)
-
-        elif row.slave == 10:
-            name, var_info = data_preparation(row)
-            inverter2.set_variables_info(name, var_info)
-
-        elif row.slave == 13:
-            name, var_info = data_preparation(row)
-            inverter3.set_variables_info(name, var_info)
+    load_variables(data, [monitor, inverter1, inverter2, inverter3])
 
     entities = [monitor.to_json(),
                 inverter1.to_json(),
