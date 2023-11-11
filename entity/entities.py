@@ -14,7 +14,7 @@ class BessBiblBatteryMonitor:
 
     def set_variables_info(self, var_name: str, dict_variable: dict) -> None:
         """
-        Set variable information such as:
+        Set monitor's variable information such as:
         - Variable's name
         - Start Register
         - Bytes
@@ -52,7 +52,7 @@ class Inverter:
 
     def set_variables_info(self, var_name: str, dict_variable: dict) -> None:
         """
-        Set variable information such as:
+        Set inverter's variable information such as:
         - Variable's name
         - Start Register
         - Bytes
