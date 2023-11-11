@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from subscription import *
+from subscriptions.subscription import *
 
 
 def create_subscription(data: pd.DataFrame):
@@ -49,8 +49,3 @@ def create_subscription(data: pd.DataFrame):
     except Exception as e:
         print(
             f"Se produjo un error al realizar la solicitud POST para crear la suscripción: {str(e)}")
-
-
-if __name__ == '__main__':
-    data = pd.read_excel("entity/variable_information.xlsx")
-    create_subscription(data)
