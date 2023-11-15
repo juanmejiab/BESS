@@ -1,5 +1,6 @@
 import pandas as pd
 import multiprocessing
+import time
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, Endian
 from entity.entities import *
@@ -8,20 +9,39 @@ from entity.create_entity import load_variables
 
 def load_data(entities: list) -> None:
     client = ModbusTcpClient('10.60.48.22', port=502)
-    response = client.read_holding_registers(80, 2, slave=12)
+    # response = client.read_holding_registers(80, 2, slave=12)
 
     for entity in entities:
         for x in entity.variables_info.values():
-            response = client.read_holding_registers(80, 2, slave=12)
+            time.sleep(0.11)
+            register = x['startRegister']
+            bytes = x['bytes']
+            slave = entity.slave
 
-            client.close()
+            try:
+                response = client.read_holding_registers(
+                    register, bytes, slave=slave)
 
-            decoder = BinaryPayloadDecoder.fromRegisters(response.registers,
-                                                         byteorder=Endian.Big,
-                                                         wordorder=Endian.Big)
-            valuer = decoder.decode_32bit_int()
-            v = decoder.decode_16bit_int()
-            print(valuer)
+                client.close()
+
+                decoder = BinaryPayloadDecoder.fromRegisters(response.registers,
+                                                             byteorder=Endian.BIG,
+                                                             wordorder=Endian.BIG)
+                if x['bytes'] == 1:
+                    value = decoder.decode_16bit_int()
+                    x["value"] = value / x["scale"]
+                    print(x["value"])
+                else:
+                    value = decoder.decode_32bit_int()
+                    x["value"] = value / x["scale"]
+                    print(x["value"])
+
+            except Exception as e:
+                # Handle the exception appropriately
+                # Log the error, retry the operation, or take other necessary actions
+                print(f"Error occurred: {e}")
+                # Retry the operation
+                continue
 
 
 if __name__ == '__main__':
@@ -34,13 +54,7 @@ if __name__ == '__main__':
 
     load_variables(data, [monitor, inverter1, inverter2, inverter3])
 
-    pool = multiprocessing.Pool(4)  # 4 procesos
-    pool.map(load_data, [monitor, inverter1, inverter2, inverter3])
-    pool.close()
-    pool.join()
-    """for x in monitor.variables_info.values():
-        print(x['startRegister'])
-        print(x['bytes'])
-        x['value'] = 10
-        print("slave: ", monitor.slave)
-        print("valor: ", x['value'])"""
+    while True:
+        load_data([monitor, inverter1, inverter2, inverter3])
+        print("Lectura finalizada")
+        time.sleep(10)
