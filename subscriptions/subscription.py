@@ -18,7 +18,7 @@ class MonitorSubscription:
                 "entities": [
                     {
                         "idPattern": "BESS_BIBL_BatteryMonitor",
-                        "type": "Modbus"
+                        "type": "Monitor"
                     }
                 ],
                 "condition": {
@@ -57,7 +57,7 @@ class InverterSubscription:
                 "entities": [
                     {
                         "idPattern": self.id,
-                        "type": "Modbus"
+                        "type": "Inverter"
                     }
                 ],
                 "condition": {

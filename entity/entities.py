@@ -32,7 +32,7 @@ class BessBiblBatteryMonitor:
 
         data = {
             "id": self.id,
-            "type": "Modbus",
+            "type": "Monitor",
         }
 
         for x, y in self.variable_entity_creation.items():
@@ -70,7 +70,7 @@ class Inverter:
 
         data = {
             "id": self.id,
-            "type": "Modbus",
+            "type": "Inverter",
         }
 
         for x, y in self.variable_entity_creation.items():
