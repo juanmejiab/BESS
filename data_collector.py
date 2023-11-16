@@ -1,5 +1,6 @@
 import pandas as pd
 import multiprocessing
+import requests
 import time
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, Endian
@@ -7,13 +8,12 @@ from entity.entities import *
 from entity.create_entity import load_variables
 
 
-def load_data(entities: list) -> None:
+def read_variable(entities: list) -> None:
     client = ModbusTcpClient('10.60.48.22', port=502)
-    # response = client.read_holding_registers(80, 2, slave=12)
 
     for entity in entities:
         for x in entity.variables_info.values():
-            time.sleep(0.11)
+            time.sleep(0.2)
             register = x['startRegister']
             bytes = x['bytes']
             slave = entity.slave
@@ -30,18 +30,40 @@ def load_data(entities: list) -> None:
                 if x['bytes'] == 1:
                     value = decoder.decode_16bit_int()
                     x["value"] = value / x["scale"]
-                    print(x["value"])
                 else:
                     value = decoder.decode_32bit_int()
                     x["value"] = value / x["scale"]
-                    print(x["value"])
 
             except Exception as e:
-                # Handle the exception appropriately
-                # Log the error, retry the operation, or take other necessary actions
-                print(f"Error occurred: {e}")
-                # Retry the operation
+                print(e)
                 continue
+
+
+def update_data(entities: list) -> None:
+    for entity in entities:
+        info = entity.to_json()
+        info.pop("id")
+        info.pop("type")
+        url = f"http://localhost:1026/v2/entities/{entity.id}/attrs"
+        header = {
+            'Content-Type': 'application/json'
+        }
+
+        try:
+            # Realiza la solicitud PATCH
+            response = requests.patch(url, json=info, headers=header)
+
+            # Verifica si la solicitud fue exitosa (código de respuesta 204)
+            if response.status_code == 204:
+                pass
+            else:
+                print(
+                    f"La solicitud PATCH falló con código de respuesta {response.status_code}.")
+                print(response.text)
+
+        except Exception as e:
+            print(
+                f"Se produjo un error al realizar la solicitud PATCH: {str(e)}")
 
 
 if __name__ == '__main__':
@@ -51,10 +73,12 @@ if __name__ == '__main__':
     inverter3 = BessBiblInverter3Phase3()
 
     data = pd.read_excel("entity/variable_information.xlsx")
+    entities = [monitor, inverter1, inverter2, inverter3]
 
-    load_variables(data, [monitor, inverter1, inverter2, inverter3])
+    load_variables(data, entities)
 
     while True:
-        load_data([monitor, inverter1, inverter2, inverter3])
+        read_variable(entities)
+        update_data(entities)
         print("Lectura finalizada")
-        time.sleep(10)
+        time.sleep(2)
