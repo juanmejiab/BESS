@@ -27,6 +27,9 @@ class BessBiblBatteryMonitor:
         self.variables_info.update(fixed_variables)
 
     def to_json(self) -> dict:
+        """
+        Set Monitor info in JSON format
+        """
         variables_copy = copy.deepcopy(self.variables_info)
         self.variable_entity_creation = variables_copy
 
@@ -65,6 +68,9 @@ class Inverter:
         self.variables_info.update(fixed_variables)
 
     def to_json(self) -> dict:
+        """
+        Set Inverter info in JSON format
+        """
         variables_copy = copy.deepcopy(self.variables_info)
         self.variable_entity_creation = variables_copy
 

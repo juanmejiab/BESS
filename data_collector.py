@@ -1,5 +1,4 @@
 import pandas as pd
-import multiprocessing
 import requests
 import time
 from pymodbus.client import ModbusTcpClient
@@ -9,11 +8,14 @@ from entity.create_entity import load_variables
 
 
 def read_variable(entities: list) -> None:
+    # Modbus connection
     client = ModbusTcpClient('10.60.48.22', port=502)
 
     for entity in entities:
         for x in entity.variables_info.values():
-            time.sleep(0.2)
+            time.sleep(0.1)
+
+            # Set parameters
             register = x['startRegister']
             bytes = x['bytes']
             slave = entity.slave
@@ -35,7 +37,6 @@ def read_variable(entities: list) -> None:
                     x["value"] = value / x["scale"]
 
             except Exception as e:
-                print(e)
                 continue
 
 
@@ -45,6 +46,7 @@ def update_data(entities: list) -> None:
         info.pop("id")
         info.pop("type")
         url = f"http://localhost:1026/v2/entities/{entity.id}/attrs"
+
         header = {
             'Content-Type': 'application/json'
         }
@@ -58,12 +60,12 @@ def update_data(entities: list) -> None:
                 pass
             else:
                 print(
-                    f"La solicitud PATCH falló con código de respuesta {response.status_code}.")
+                    f"PATCH request failed with response code {response.status_code}.")
                 print(response.text)
 
         except Exception as e:
             print(
-                f"Se produjo un error al realizar la solicitud PATCH: {str(e)}")
+                f"An error occurred while making the PATCH request: {str(e)}")
 
 
 if __name__ == '__main__':
@@ -72,13 +74,15 @@ if __name__ == '__main__':
     inverter2 = BessBiblInverter2Phase2()
     inverter3 = BessBiblInverter3Phase3()
 
+    # Read variable info
     data = pd.read_excel("entity/variable_information.xlsx")
     entities = [monitor, inverter1, inverter2, inverter3]
 
     load_variables(data, entities)
 
     while True:
+        # Read vairables from BESS
         read_variable(entities)
+
+        # PATCH request to update data
         update_data(entities)
-        print("Lectura finalizada")
-        time.sleep(2)

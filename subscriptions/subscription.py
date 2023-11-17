@@ -1,9 +1,16 @@
 class MonitorSubscription:
+    """
+    Set structure to create Monitor's subscription
+    """
+
     def __init__(self):
         self.condition_attributes = []
         self.notification_attributes = []
 
     def load_attributes(self, attribute: list) -> None:
+        """
+        Set condition and notification attributes 
+        """
         condition_attributes = attribute.copy()
 
         notification_attributes = ["id"] + condition_attributes
@@ -12,6 +19,9 @@ class MonitorSubscription:
         self.notification_attributes = notification_attributes
 
     def create_subscription(self) -> dict:
+        """
+        Create subscription structure
+        """
         data = {
             "description": "BESS_BIBL_Monitor Subscription",
             "subject": {
@@ -36,6 +46,10 @@ class MonitorSubscription:
 
 
 class InverterSubscription:
+    """
+    Set structure to create Inverter's subscription
+    """
+
     def __init__(self):
         self.description = ""
         self.id = ""
@@ -51,6 +65,9 @@ class InverterSubscription:
         self.notification_attributes = notification_attributes
 
     def create_subscription(self) -> dict:
+        """
+        Create subscription structure
+        """
         data = {
             "description": self.description,
             "subject": {

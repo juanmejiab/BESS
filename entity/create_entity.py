@@ -4,6 +4,7 @@ from entity.entities import *
 
 
 def data_preparation(info: pd.Series):
+    # Delete some unnecessary info
     var = info.to_dict()
     var_name = var['variable']
 
@@ -14,6 +15,7 @@ def data_preparation(info: pd.Series):
 
 
 def load_variables(data: pd.DataFrame, entities: list) -> None:
+    # Reads Excel's dataframe to load some features of the variables
     for index, row in data.iterrows():
         for entity in entities:
             if row.slave == 1 and isinstance(entity, BessBiblBatteryMonitor):
@@ -36,7 +38,7 @@ def load_variables(data: pd.DataFrame, entities: list) -> None:
 def create_entities(data: pd.DataFrame):
     url = 'http://localhost:1026/v2/entities'
 
-    # Cabeceras HTTP con el tipo de contenido JSON
+    # HTTP Header with JSON type content
     headers = {
         'Content-Type': 'application/json'
     }
@@ -48,21 +50,22 @@ def create_entities(data: pd.DataFrame):
 
     load_variables(data, [monitor, inverter1, inverter2, inverter3])
 
+    # List of entites if JSON format
     entities = [monitor.to_json(),
                 inverter1.to_json(),
                 inverter2.to_json(),
                 inverter3.to_json()]
     try:
-        # Realiza la solicitud POST para crear las entidades
+        # POST request to create entities
         for entity in entities:
             response = requests.post(url, json=entity, headers=headers)
 
-            # Verifica si la solicitud fue exitosa (código de respuesta 201)
+            # Verifies if POST request was successful
             if response.status_code == 201:
-                print("Las entidades se crearon con éxito en Orion.")
+                print("The entities were created successfully")
             else:
                 print(
-                    f"La solicitud POST falló con código de respuesta {response.status_code}.")
+                    f"POST request failed with response code {response.status_code}.")
                 print(response.text)
     except Exception as e:
-        print(f"Se produjo un error al realizar la solicitud POST: {str(e)}")
+        print(f"An error occurred in POST request: {str(e)}")

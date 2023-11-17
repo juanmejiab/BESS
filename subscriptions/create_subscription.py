@@ -4,6 +4,7 @@ from subscriptions.subscription import *
 
 
 def create_subscription(data: pd.DataFrame):
+    # Initialize entities' structure
     monitor_subscription = MonitorSubscription()
     inverter1_subscription = Inverter1Subscription()
     inverter2_subscription = Inverter2Subscription()
@@ -34,18 +35,18 @@ def create_subscription(data: pd.DataFrame):
     }
 
     try:
-        # Realiza la solicitud POST para crear la suscripción
+        # POST request to create subscription
         for sub in subscription_data:
             response = requests.post(url, json=sub, headers=headers)
 
-            # Verifica si la solicitud fue exitosa (código de respuesta 201)
+            # Verify if the request was successful
             if response.status_code == 201:
-                print("La suscripción se creó con éxito en Orion.")
+                print("The subscription was created successfully")
             else:
                 print(
-                    f"La solicitud POST para crear la suscripción falló con código de respuesta {response.status_code}.")
+                    f"POST request failed with response code {response.status_code}.")
                 print(response.text)
 
     except Exception as e:
         print(
-            f"Se produjo un error al realizar la solicitud POST para crear la suscripción: {str(e)}")
+            f"An error occurred while making the POST request to create the subscription: {str(e)}")

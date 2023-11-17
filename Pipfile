@@ -7,6 +7,7 @@ name = "pypi"
 pandas = "*"
 openpyxl = "*"
 requests = "*"
+crate = "*"
 
 [dev-packages]
 
